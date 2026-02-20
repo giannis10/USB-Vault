@@ -1,0 +1,38 @@
+name: Build EXE with Icons
+
+on:
+  push:
+    branches: [ "main" ] # Τρέχει κάθε φορά που κάνεις push στην main
+  workflow_dispatch: # Επιτρέπει να το τρέχεις χειροκίνητα
+
+jobs:
+  build:
+    runs-on: windows-latest # Χρειαζόμαστε Windows runner για να βγάλουμε .exe
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cryptography pyautogui pyinstaller
+
+    - name: Build Manager EXE
+      run: |
+        pyinstaller --onefile --noconsole --add-data "manager.ico;." --icon="manager.ico" manager.py
+
+    - name: Build Launcher EXE
+      run: |
+        pyinstaller --onefile --noconsole --add-data "lancher.ico;." --icon="lancher.ico" lancher.py
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Secure-USB-Tools
+        path: dist/*.exe # Ανεβάζει τα exe που δημιουργήθηκαν στο φάκελο dist
