@@ -1,13 +1,15 @@
-name: Build EXE with Icons
+name: Build and Release EXE
 
 on:
   push:
-    branches: [ "main" ] # Τρέχει κάθε φορά που κάνεις push στην main
-  workflow_dispatch: # Επιτρέπει να το τρέχεις χειροκίνητα
+    tags:
+      - 'v*' # Τρέχει μόνο όταν κάνεις push ένα tag που ξεκινάει με v (π.χ. v1.0)
 
 jobs:
   build:
-    runs-on: windows-latest # Χρειαζόμαστε Windows runner για να βγάλουμε .exe
+    runs-on: windows-latest
+    permissions:
+      contents: write # Απαραίτητο για να μπορεί το Action να δημιουργήσει το Release
 
     steps:
     - name: Checkout Code
@@ -31,8 +33,15 @@ jobs:
       run: |
         pyinstaller --onefile --noconsole --add-data "lancher.ico;." --icon="lancher.ico" lancher.py
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
       with:
-        name: Secure-USB-Tools
-        path: dist/*.exe # Ανεβάζει τα exe που δημιουργήθηκαν στο φάκελο dist
+        files: |
+          dist/manager.exe
+          dist/lancher.exe
+        name: Release ${{ github.ref_name }}
+        tag_name: ${{ github.ref }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
