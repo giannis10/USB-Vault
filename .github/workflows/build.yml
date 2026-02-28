@@ -31,7 +31,7 @@ jobs:
 
     - name: Build Launcher EXE
       run: |
-        pyinstaller --onefile --noconsole --add-data "lancher.ico;." --icon="lancher.ico" lancher.py
+        pyinstaller --onefile --noconsole --add-data "launcher.ico;." --icon="launcher.ico" launcher.py
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
